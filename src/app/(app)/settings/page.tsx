@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { PageSkeleton } from "@/components/page-skeleton";
 import { PageHeader } from "@/components/app-shell";
 import { SettingsView } from "@/components/settings-view";
 import { isAiConfigured } from "@/lib/ai";
@@ -7,7 +9,7 @@ import { getRates } from "@/lib/fx";
 
 export const metadata = { title: "Settings" };
 
-export default async function SettingsPage() {
+async function SettingsContent() {
   const { db, userId, email } = await requireUser();
   const [basics, fx, rules] = await Promise.all([
     loadBasics(db, userId),
@@ -27,5 +29,14 @@ export default async function SettingsPage() {
         aiConfigured={isAiConfigured()}
       />
     </>
+  );
+}
+
+/** Data loads inside Suspense so navigations render the skeleton instantly. */
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <SettingsContent />
+    </Suspense>
   );
 }

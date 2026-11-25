@@ -5,6 +5,10 @@ import { hashRaw, ingestTransactions } from "@/lib/ingest";
 import { parseBankMessage } from "@/lib/parsers/message";
 import type { ParsedTransaction } from "@/lib/parsers/types";
 
+export const webhooksConfigured = () => Boolean(process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY);
+export const notConfigured = () =>
+  Response.json({ error: "Server is missing SUPABASE_SECRET_KEY — add it in your hosting environment variables." }, { status: 503 });
+
 /** Find the user behind a webhook token (header, bearer or ?token=). */
 export async function userFromToken(admin: SupabaseClient, req: Request): Promise<{ id: string; ai_enabled: boolean } | null> {
   const url = new URL(req.url);

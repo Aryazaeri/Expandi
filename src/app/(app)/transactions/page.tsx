@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { PageSkeleton } from "@/components/page-skeleton";
 import { PageHeader } from "@/components/app-shell";
 import { TransactionsView } from "@/components/transactions-view";
 import { requireUser } from "@/lib/auth";
@@ -8,11 +10,11 @@ export const metadata = { title: "Activity" };
 
 const currentMonth = () => new Date(Date.now() + 3 * 3600_000).toISOString().slice(0, 7);
 
-export default async function TransactionsPage({ searchParams }: PageProps<"/transactions">) {
+async function TransactionsContent({ searchParams }: PageProps<"/transactions">) {
+  const { db, userId } = await requireUser();
   const sp = await searchParams;
   const month = typeof sp.month === "string" && /^\d{4}-\d{2}$/.test(sp.month) ? sp.month : currentMonth();
   const review = sp.view === "review";
-  const { db, userId } = await requireUser();
   const { categories, accounts } = await loadBasics(db, userId);
 
   let query = db.from("transactions").select("*").eq("user_id", userId).order("occurred_at", { ascending: false }).limit(2000);
@@ -39,5 +41,14 @@ export default async function TransactionsPage({ searchParams }: PageProps<"/tra
         initialCategory={typeof sp.category === "string" ? sp.category : "all"}
       />
     </>
+  );
+}
+
+/** Data loads inside Suspense so navigations render the skeleton instantly. */
+export default function TransactionsPage(props: PageProps<"/transactions">) {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <TransactionsContent {...props} />
+    </Suspense>
   );
 }

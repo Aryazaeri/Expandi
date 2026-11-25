@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { PageSkeleton } from "@/components/page-skeleton";
 import { headers } from "next/headers";
 import { PageHeader } from "@/components/app-shell";
 import { ImportView } from "@/components/import-view";
@@ -8,7 +10,7 @@ import { isAiConfigured } from "@/lib/ai";
 
 export const metadata = { title: "Import" };
 
-export default async function ImportPage({ searchParams }: PageProps<"/import">) {
+async function ImportContent({ searchParams }: PageProps<"/import">) {
   const sp = await searchParams;
   const { db, userId } = await requireUser();
   const [{ profile, accounts }, events, h] = await Promise.all([
@@ -32,5 +34,14 @@ export default async function ImportPage({ searchParams }: PageProps<"/import">)
         initialTab={typeof sp.tab === "string" ? sp.tab : "auto"}
       />
     </>
+  );
+}
+
+/** Data loads inside Suspense so navigations render the skeleton instantly. */
+export default function ImportPage(props: PageProps<"/import">) {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <ImportContent {...props} />
+    </Suspense>
   );
 }

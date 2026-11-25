@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { pick, processMessage, readBody, toDate, userFromToken } from "@/lib/webhook";
+import { notConfigured, pick, processMessage, readBody, toDate, userFromToken, webhooksConfigured } from "@/lib/webhook";
 
 export const maxDuration = 60;
 
@@ -10,6 +10,7 @@ export const maxDuration = 60;
  *   or  { "messages": [ ... ] } for a batch, or a plain-text body.
  */
 export async function POST(req: Request) {
+  if (!webhooksConfigured()) return notConfigured();
   const admin = createAdminClient();
   const user = await userFromToken(admin, req);
   if (!user) return NextResponse.json({ error: "Invalid or missing token" }, { status: 401 });

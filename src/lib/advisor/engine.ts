@@ -207,9 +207,13 @@ export function computeAdvisor(input: AdvisorInput) {
   // ---- recurring / subscriptions -------------------------------------------
   const windowStart = new Date(today.getTime() - 120 * 86400_000);
   const groups = new Map<string, EngineTx[]>();
+  // Day-to-day spending that happens to repeat (weekly groceries, fuel) isn't a bill
+  const NOT_RECURRING = new Set(["groceries", "transport", "dining", "food-delivery", "shopping", "cash", "personal-care"]);
   for (const tx of transactions) {
     if (tx.amount_try >= 0 || kindOf(tx) === "transfer") continue;
     if (new Date(tx.occurred_at) < windowStart) continue;
+    const slug = tx.category_id ? catById.get(tx.category_id)?.slug : null;
+    if (slug && NOT_RECURRING.has(slug)) continue;
     const key = ruleKeyFor(tx.merchant, tx.description);
     if (!key) continue;
     const arr = groups.get(key) ?? [];

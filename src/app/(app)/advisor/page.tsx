@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { PageSkeleton } from "@/components/page-skeleton";
 import { PageHeader } from "@/components/app-shell";
 import { AdvisorChat } from "@/components/advisor-chat";
 import { InsightItem } from "@/components/insight-card";
@@ -9,7 +11,7 @@ import { loadAdvisor } from "@/lib/data";
 
 export const metadata = { title: "Advisor" };
 
-export default async function AdvisorPage() {
+async function AdvisorContent() {
   const { db, userId } = await requireUser();
   const { snapshot: s, profile } = await loadAdvisor(db, userId);
   const aiReady = isAiConfigured() && !!profile?.ai_enabled;
@@ -88,5 +90,14 @@ function Row({ label, value, bold }: { label: string; value: number | null; bold
       <span className={bold ? "" : "text-muted-foreground"}>{label}</span>
       <Money amount={value} decimals={0} />
     </div>
+  );
+}
+
+/** Data loads inside Suspense so navigations render the skeleton instantly. */
+export default function AdvisorPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <AdvisorContent />
+    </Suspense>
   );
 }

@@ -4,7 +4,7 @@ import { hashRaw, ingestTransactions } from "@/lib/ingest";
 import { detectBank } from "@/lib/parsers/message";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { htmlToText } from "@/lib/text";
-import { pick, processMessage, readBody, toDate, userFromToken } from "@/lib/webhook";
+import { notConfigured, pick, processMessage, readBody, toDate, userFromToken, webhooksConfigured } from "@/lib/webhook";
 
 export const maxDuration = 300;
 
@@ -19,6 +19,7 @@ interface Attachment {
  * Body: { from, subject, body | html, date, attachments?: [{ name, mimeType, data(base64) }] }
  */
 export async function POST(req: Request) {
+  if (!webhooksConfigured()) return notConfigured();
   const admin = createAdminClient();
   const user = await userFromToken(admin, req);
   if (!user) return NextResponse.json({ error: "Invalid or missing token" }, { status: 401 });

@@ -35,8 +35,8 @@ export function SpendingPaceChart({ data }: { data: { day: number; spent: number
             />
           }
         />
-        <Line dataKey="plan" type="linear" stroke="var(--color-plan)" strokeDasharray="5 5" dot={false} strokeWidth={1.5} />
-        <Area dataKey="spent" type="monotone" stroke="var(--color-spent)" fill="url(#fillSpent)" strokeWidth={2} connectNulls={false} />
+        <Line dataKey="plan" type="linear" stroke="var(--color-plan)" strokeDasharray="5 5" dot={false} strokeWidth={1.5} isAnimationActive={false} />
+        <Area dataKey="spent" type="monotone" stroke="var(--color-spent)" fill="url(#fillSpent)" strokeWidth={2} connectNulls={false} isAnimationActive={false} />
       </AreaChart>
     </ChartContainer>
   );
@@ -72,8 +72,8 @@ export function HistoryChart({ data }: { data: { month: string; income: number; 
             />
           }
         />
-        <Bar dataKey="income" fill="var(--color-income)" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="expense" fill="var(--color-expense)" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="income" fill="var(--color-income)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
+        <Bar dataKey="expense" fill="var(--color-expense)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
       </BarChart>
     </ChartContainer>
   );

@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { PageSkeleton } from "@/components/page-skeleton";
 import { PageHeader } from "@/components/app-shell";
 import { GoalsView } from "@/components/goals-view";
 import { requireUser } from "@/lib/auth";
@@ -5,7 +7,7 @@ import { loadAdvisor } from "@/lib/data";
 
 export const metadata = { title: "Goals" };
 
-export default async function GoalsPage() {
+async function GoalsContent() {
   const { db, userId } = await requireUser();
   const { snapshot: s, goals } = await loadAdvisor(db, userId);
   const avgExpense = s.spend.avgMonthlyReal || s.spend.total;
@@ -19,5 +21,14 @@ export default async function GoalsPage() {
         baseline={s.income.baseline}
       />
     </>
+  );
+}
+
+/** Data loads inside Suspense so navigations render the skeleton instantly. */
+export default function GoalsPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <GoalsContent />
+    </Suspense>
   );
 }

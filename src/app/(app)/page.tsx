@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { PageSkeleton } from "@/components/page-skeleton";
 import Link from "next/link";
 import { ArrowDownToLine, ArrowRight, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/app-shell";
@@ -22,7 +24,7 @@ const STATUS = {
   unknown: { label: "Needs data", cls: "bg-muted text-muted-foreground" },
 } as const;
 
-export default async function DashboardPage() {
+async function DashboardContent() {
   const { db, userId } = await requireUser();
   const { snapshot: s, transactions, categories, accounts } = await loadAdvisor(db, userId);
   const catById = new Map(categories.map((c) => [c.id, c]));
@@ -256,5 +258,14 @@ function EmptyState() {
         </Link>
       </div>
     </div>
+  );
+}
+
+/** Data loads inside Suspense so navigations render the skeleton instantly. */
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   );
 }

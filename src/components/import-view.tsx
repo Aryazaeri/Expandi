@@ -244,7 +244,7 @@ function syncBankEmails() {
             </li>
           </Steps>
           <div className="relative">
-            <pre className="max-h-72 overflow-auto rounded-lg bg-muted p-3 text-xs">{appsScript}</pre>
+            <pre className="max-h-72 overflow-auto rounded-lg bg-muted p-3 text-xs">{appsScript.replace(token, "•".repeat(12) + " (included when you copy)")}</pre>
             <Button
               size="sm"
               variant="secondary"

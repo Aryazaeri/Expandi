@@ -19,10 +19,15 @@ export function TransactionRow({
   showDate?: boolean;
   className?: string;
 }) {
-  const time = new Date(tx.occurred_at).toLocaleString("tr-TR", {
-    timeZone: "Europe/Istanbul",
-    ...(showDate ? { day: "2-digit", month: "short" } : { hour: "2-digit", minute: "2-digit" }),
-  });
+  // Statements carry no time of day (stored as 12:00) — don't show a made-up time
+  const noTime = tx.source === "statement" && tx.occurred_at.includes("T09:00:00");
+  const time =
+    !showDate && noTime
+      ? null
+      : new Date(tx.occurred_at).toLocaleString("tr-TR", {
+          timeZone: "Europe/Istanbul",
+          ...(showDate ? { day: "2-digit", month: "short" } : { hour: "2-digit", minute: "2-digit" }),
+        });
   return (
     <div className={cn("flex items-center gap-3 py-2.5", className)}>
       <CategoryIcon icon={category?.icon} color={category?.color} />
@@ -37,7 +42,8 @@ export function TransactionRow({
         </div>
         <div className="truncate text-xs text-muted-foreground">
           {category?.name ?? "Uncategorized"} · {accountName ? `${accountName} · ` : ""}
-          {SOURCE_LABEL[tx.source] ?? tx.source} · {time}
+          {SOURCE_LABEL[tx.source] ?? tx.source}
+          {time ? ` · ${time}` : ""}
           {tx.installments ? ` · ${tx.installments} taksit` : ""}
         </div>
       </div>
